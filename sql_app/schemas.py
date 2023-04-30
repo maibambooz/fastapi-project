@@ -1,16 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, validator
+from datetime import datetime, date
 
-
-class ItemBase(BaseModel):
+class loanBase(BaseModel):
     title: str
-    description: str | None = None
+    amount: int
+    annual_interest_rate: float
+    loan_terms_months: int
+    #description: str | None = None
 
 
-class ItemCreate(ItemBase):
+class loanCreate(loanBase):
     pass
 
 
-class Item(ItemBase):
+class Loan(loanBase):
     id: int
     owner_id: int
 
@@ -20,6 +23,10 @@ class Item(ItemBase):
 
 class UserBase(BaseModel):
     email: str
+    first_name: str
+    last_name: str
+    creation_date: date
+    birth_date: date
 
 
 class UserCreate(UserBase):
@@ -29,7 +36,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    items: list[Item] = []
+    loans: list[Loan] = []
 
     class Config:
         orm_mode = True
