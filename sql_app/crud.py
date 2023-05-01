@@ -23,8 +23,12 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-# def get_loan_by_id(db: Session, owner_id: int, loan_id: int):
-#     return db.query(models.Loan).filter(models.Loan.owner_id == owner_id, models.Loan.id == loan_id)
+def get_user_loans(db: Session, user_id: int):
+    db_user = get_user(db, user_id)
+    print(db_user.loans)
+    for loan in db_user.loans:
+        print(loan.id)
+    return db_user.loans
 
 def get_loans(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Item).offset(skip).limit(limit).all()
