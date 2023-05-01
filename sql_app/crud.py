@@ -25,9 +25,6 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def get_user_loans(db: Session, user_id: int):
     db_user = get_user(db, user_id)
-    print(db_user.loans)
-    for loan in db_user.loans:
-        print(loan.id)
     return db_user.loans
 
 def get_loans(db: Session, skip: int = 0, limit: int = 100):
