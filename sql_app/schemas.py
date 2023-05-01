@@ -2,19 +2,15 @@ from pydantic import BaseModel, ValidationError, validator
 # from typing import List
 from datetime import datetime, date
 
-# class LoanBase(BaseModel):
-# #     amount: int
-# #     annual_interest_rate: float
-# #     loan_terms_months: int
-#
 # # class loan_schedule(BaseModel):
 # #     month: str
 # #     remaining_balance: float
 # #     monthly_payment: float
 
 class LoanBase(BaseModel):
-    title: str
-    description: str | None = None
+    amount: int
+    annual_interest_rate: float
+    loan_terms_months: int                  
 
 class LoanCreate(LoanBase):
     pass
