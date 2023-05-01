@@ -9,15 +9,22 @@ class LoanBase(BaseModel):
 class LoanCreate(LoanBase):
     pass
 
-# class LoanSchedule(LoanBase):
-#     month: str
-#     remaining_balance: float
-#     monthly_payment: float
+class LoanSummary(BaseModel):
+    month: int
+    current_principal: float
+    principal_paid: float
+    interest_paid: float
+
+class LoanSchedule(LoanBase):
+    month: int
+    remaining_balance: float
+    monthly_payment: float
+    summary: list[LoanSummary] = []
 
 class Loan(LoanBase):
     id: int
     owner_id: int
-#     loan_schedule: list[LoanSchedule] = []
+    loan_schedule: list[LoanSchedule] = []
 
     class Config:
         orm_mode = True
