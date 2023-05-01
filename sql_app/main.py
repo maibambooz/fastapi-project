@@ -41,6 +41,9 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 def create_user_loan(loan: schemas.LoanCreate, user_id: int, db: Session = Depends(get_db)):
     return crud.create_user_loan(db=db, loan=loan, user_id=user_id)
 
+@app.get("", response_model=schemas.LoanSchedule)
+def get_loan_summary():
+
 # @app.get("/users/{user_id}/loans/{loan_id}/{month}", response_model=schemas.User)
 # def calculate_monthly(user_id: int, loan_id: int, month: int, db: Session = Depends(get_db)):
 #     db_user = crud.get_user(db, user_id=user_id)
@@ -53,13 +56,7 @@ def create_user_loan(loan: schemas.LoanCreate, user_id: int, db: Session = Depen
 #     interest_paid = f"${npf.ipmt(r/12, month, term, -pv):,.2f}"
 #     principal_paid = f"${npf.ppmt(r/12, month, term, -pv):,.2f}"
 
-# @app.get("/loans/", response_model=list[schemas.Loan])
-# def read_loans(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     loans = crud.get_loans(db, skip=skip, limit=limit)
-#     return loans
-
-
-@app.get("/items/", response_model=list[schemas.Loan])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@app.get("/loans/", response_model=list[schemas.Loan])
+def read_loans(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     loans = crud.get_loans(db, skip=skip, limit=limit)
     return loans

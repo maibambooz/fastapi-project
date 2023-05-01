@@ -18,12 +18,9 @@ class User(Base):
 #     loans = relationship("Loan", back_populates="owner")
     loans = relationship("Item", back_populates="owner")
 
-
-
 # class Loan(Base):
 class Item(Base):
-#     __tablename__ = "loans"
-    __tablename__ = "items"
+    __tablename__ = "loans"
 
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Integer)
