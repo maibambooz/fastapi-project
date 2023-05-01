@@ -1,24 +1,19 @@
 from sqlalchemy.orm import Session
-
 from . import models, schemas
-
 
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
-
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
-
 def create_user(db: Session, user: schemas.UserCreate):
     fake_hashed_password = user.password + "notreallyhashed"
-    db_user = models.User(email=user.email, 
-                          first_name=user.first_name, 
+    db_user = models.User(email=user.email,
+                          first_name=user.first_name,
                           last_name=user.last_name,
                           creation_date=user.creation_date,
                           birth_date=user.birth_date,
@@ -28,14 +23,15 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+# def get_loan_by_id(db: Session, owner_id: int, loan_id: int):
+#     return db.query(models.Loan).filter(models.Loan.owner_id == owner_id, models.Loan.id == loan_id)
 
 def get_loans(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Loan).offset(skip).limit(limit).all()
+    return db.query(models.Item).offset(skip).limit(limit).all()
 
-
-def create_user_loan(db: Session, loan: schemas.loanCreate, user_id: int):
-    db_item = models.Loan(**loan.dict(), owner_id=user_id)
-    db.add(db_item)
+def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
+    db_loan = models.Item(**loan.dict(), owner_id=user_id)
+    db.add(db_loan)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    db.refresh(db_loan)
+    return db_loan
