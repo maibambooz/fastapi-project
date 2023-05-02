@@ -27,8 +27,9 @@ def create_user(db: Session, user: schemas.UserCreate):
 def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
     db_loan = models.Item(**loan.dict(), owner_id=user_id)
     schedule = create_loan_schedule(db, db_loan)
-    db_loan.summary = (schedule)
-    print(db_loan.summary)
+    db_loan.loan_schedule = schedule
+#     print(db_loan.summary)
+#     print(db_loan)
 #     db_loan_schedule = db_loan.loan_schedule
 #     db_loan_schedule.append()
     db.add(db_loan)
@@ -44,10 +45,10 @@ def get_loans(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Item).offset(skip).limit(limit).all()
 
 def create_loan_schedule(db: Session, loan: models.Item):
-    schedule = []
+    schedule = {}
     for month in range(1, loan.loan_terms_months + 1):
         summary = calculate_month_summary(loan, month)
-        schedule.append(summary)
+        schedule[month] = summary
     return schedule
 
 def calculate_month_summary(loan: models.Item, month: int):
@@ -59,7 +60,8 @@ def calculate_month_summary(loan: models.Item, month: int):
     interest_paid = float(f"{npf.ipmt((rate/12), month, term, -principal_amount):.2f}")
     principal_paid = float(f"{npf.ppmt((rate/12), month, term, -principal_amount):.2f}")
 
-    return schemas.LoanSummary(month = month,
-                               current_principal = monthly_payment,
+    return schemas.LoanSummary(current_principal = principal_amount,
                                principal_paid = principal_paid,
-                               interest_paid = interest_paid)
+                               interest_paid = interest_paid,
+                               remaining_balance = (principal_amount-principal_paid),
+                               monthly_payment = monthly_payment)

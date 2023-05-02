@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ValidationError, validator
+from typing import Dict
 from datetime import datetime, date
 
 class LoanBase(BaseModel):
@@ -10,21 +11,16 @@ class LoanCreate(LoanBase):
     pass
 
 class LoanSummary(BaseModel):
-    month: int
     current_principal: float
     principal_paid: float
     interest_paid: float
-
-class LoanSchedule(LoanBase):
-    month: int
     remaining_balance: float
-    monthly_payment: float
-    summary: list[LoanSummary] = []
+    monthly_payment: float  
 
 class Loan(LoanBase):
     id: int
     owner_id: int
-    loan_schedule: list[LoanSchedule] = []
+    loan_schedule: Dict[int, LoanSummary]
 
     class Config:
         orm_mode = True
