@@ -2,7 +2,15 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 import numpy_financial as npf
 
-
+"""
+    create_user() create new user
+    Parameters
+    ---
+    db: Session, required
+        Reference to the current database session storing the data
+    user: schemas.UserCreate, required
+        Schema of User object to be used to populate information
+"""
 def create_user(db: Session, user: schemas.UserCreate):
     fake_hashed_password = user.password + "notreallyhashed"
     db_user = models.User(email=user.email,
@@ -16,6 +24,17 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+"""
+    create_user_loan() create new loan under specified user
+    Parameters
+    ---
+    db: Session, required
+        Reference to the current database session storing the data
+    loan: schemas.LoanCreate, required
+        Schema of Loan object to be used to populate information
+    user_id: int, required
+            Integer value that represents user identification number
+"""
 def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
     db_loan = models.Item(**loan.dict(), owner_id=user_id)
     db_loan.loan_schedule = create_loan_schedule(db, db_loan)
@@ -24,6 +43,15 @@ def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
     db.refresh(db_loan)
     return db_loan
 
+"""
+    create_loan_schedule() create loan schedule that contains all loan term monthly summary
+    Parameters
+    ---
+    db: Session, required
+        Reference to the current database session storing the data
+    loan: models.Item, required
+        Model of class Item to be used to obtain loan information
+"""
 def create_loan_schedule(db: Session, loan: models.Item):
     schedule = {}
     for month in range(1, loan.loan_terms_months + 1):
@@ -139,6 +167,7 @@ def get_loan_summary(db: Session, user_id: int, loan_id: int, month: int):
         return loan_summary
     except KeyError:
         raise HTTPException(status_code=400, detail="Monthly summary cannot be retrieved")
+
 
 def share_loan(db: Session, user_id: int, other_user_id, loan_id: int):
     return None
