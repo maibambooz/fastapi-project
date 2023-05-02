@@ -49,8 +49,12 @@ def get_all_user_loans(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_all_user_loans(db, user_id=user_id)
     return db_user
 
-@app.get("/users/{user_id}/loans/loan_schedule")
-def length_loan_schedule(user_id: int, db: Session = Depends(get_db)):
-    return None
+@app.get("/users/{user_id}/loans/{loan_id}")
+def get_loan_schedule(user_id: int, loan_id: int, db: Session = Depends(get_db)):
+    db_schedule = get_loan_schedule(db,user_id=user_id, loan_id=loan_id)
+    return db_schedule
 
-# @app.get("/users/{user_id}/loans/{loan_id}/{month}", response_model=schemas.User)
+@app.get("/users/{user_id}/loans/{loan_id}/{month}")
+def get_loan_summary(user_id: int, loan_id: int, month: int, db: Session = Depends(get_db)):
+    db_loan_summary = get_loan_summary(db, user_id=user_id, loan_id=loan_id, month=month)
+    return db_loan_summary

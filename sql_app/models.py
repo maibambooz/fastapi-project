@@ -15,10 +15,8 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
 
-#     loans = relationship("Loan", back_populates="owner")
     loans = relationship("Item", back_populates="owner")
 
-# class Loan(Base):
 class Item(Base):
     __tablename__ = "loans"
 
