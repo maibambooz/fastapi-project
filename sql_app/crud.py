@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
+from passlib.context import CryptContext
+from fastapi import FastAPI, HTTPException
 import numpy_financial as npf
 
+password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 """
     create_user() create new user
     Parameters
@@ -12,13 +15,13 @@ import numpy_financial as npf
         Schema of User object to be used to populate information
 """
 def create_user(db: Session, user: schemas.UserCreate):
-    fake_hashed_password = user.password + "notreallyhashed"
+    hashed_password = password_context.hash(user.password)
     db_user = models.User(email=user.email,
                           first_name=user.first_name,
                           last_name=user.last_name,
                           creation_date=user.creation_date,
                           birth_date=user.birth_date,
-                          hashed_password=fake_hashed_password)
+                          hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -37,7 +40,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 """
 def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
     db_loan = models.Item(**loan.dict(), owner_id=user_id)
-    db_loan.loan_schedule = create_loan_schedule(db, db_loan)
+#     db_loan.loan_schedule = create_loan_schedule(db, db_loan)
     db.add(db_loan)
     db.commit()
     db.refresh(db_loan)
@@ -95,20 +98,8 @@ def get_user_by_email(db: Session, email: str):
         Integer value to limit the number of records
 """
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
-
-"""
-    get_all_user_loans() retrieves all loans under specified user
-    Parameters
-    ---
-    db: Session, required
-        Reference to the current database session storing the data
-    user_id: int, required
-        Integer value that represents user identification number
-"""
-def get_all_user_loans(db: Session, user_id: int):
-    db_user = get_user(db, user_id)
-    return db_user.loans
+    db_user = db.query(models.User).offset(skip).limit(limit).all()
+    return db_user
 
 """
     get_loans() retrieves all loans within database
@@ -136,15 +127,16 @@ def get_loans(db: Session, skip: int = 0, limit: int = 100):
         Integer value that represents user's loan identification number
 """
 def get_loan_schedule(db: Session, user_id: int, loan_id: int):
-    db_user = crud.get_user(db, user_id=user_id)
-    db_loans = crud.get_all_user_loans(db, user_id=user_id)
+    db_user = get_user(db, user_id)
+    db_loans = db_user.loans
     # Iterate through all user loans, find matching loan_id
     for loan in db_loans:
         if loan.id == loan_id:
-            db_schedule = loan.loan_schedule
+#             db_schedule = loan.loan_schedule
+            db_schedule = create_loan_schedule(db, loan)
             break
-    if db_schedule is None:
-        raise HTTPException(status_code=404, detail="Specified loan cannot be found")
+        else:
+            raise HTTPException(status_code=400, detail="User loan cannot be found. Loan ID is: {}".format(loan_id))
     return db_schedule
 
 """
@@ -161,14 +153,22 @@ def get_loan_schedule(db: Session, user_id: int, loan_id: int):
         Integer value between the numbers of 1-12 for months
 """
 def get_loan_summary(db: Session, user_id: int, loan_id: int, month: int):
-    db_schedule = get_loan_schedule(db,user_id=user_id, loan_id=loan_id)
-    try:
-        loan_summary = db_schedule[month]
-        return loan_summary
-    except KeyError:
-        raise HTTPException(status_code=400, detail="Monthly summary cannot be retrieved")
+    db_schedule = get_loan_schedule(db, user_id=user_id, loan_id=loan_id)
 
+    if month > len(db_schedule):
+        raise HTTPException(status_code=400, detail="Specified month exceeds the loan term. Loan term is: {}".format(len(db_schedule)))
 
+    loan_summary = db_schedule[month]
+    return loan_summary
+
+"""
+    Due to time constraints on my end, I will not have enough time to implement the share loan functionality
+    Thoughts of process:
+        - Obtain id number of both owner and other owner
+        - Retrieve loan using loan id
+        - Most likely within the User class, I would add in a list[Loan] field called co-signers
+        - Once we retrieve the loan object, we simply add it onto the other user list
+"""
 def share_loan(db: Session, user_id: int, other_user_id, loan_id: int):
     return None
 
