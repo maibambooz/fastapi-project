@@ -1,0 +1,18 @@
+fastapi
+uvicorn
+pydantic
+numpy
+numpy-financial
+
+#for database
+sqlalchemy
+
+#for loading environment variables
+python-dotenv
+
+#for email validation
+pydantic[email]
+email-validator
+
+#hashing
+passlib[bcrypt]
