@@ -27,7 +27,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+@app.get("/users/{user_id}", response_model=schemas.User, tags=["users"])
 def get_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -62,3 +62,10 @@ def get_loan_schedule(user_id: int, loan_id: int, db: Session = Depends(get_db))
 def get_loan_summary(user_id: int, loan_id: int, month: int, db: Session = Depends(get_db)):
     db_loan_summary = crud.get_loan_summary(db, user_id=user_id, loan_id=loan_id, month=month)
     return db_loan_summary
+
+@app.get("/users/{user_id}/loans/{loan_id}/{other_user_id}", tags=["share_loan"])
+def share_loan(user_id: int, loan_id: int, other_user_id: int, db: Session = Depends(get_db)):
+    db_share_loan = crud.share_loan(db, user_id=user_id, other_user_id=other_user_id, loan_id=loan_id)
+    if db_share_loan is None:
+        raise HTTPException(status_code=404, detail="This functionality is not yet available. See documentation for details in crud.py")
+    return db_share_loan

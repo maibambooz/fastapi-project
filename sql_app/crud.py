@@ -40,7 +40,6 @@ def create_user(db: Session, user: schemas.UserCreate):
 """
 def create_user_loan(db: Session, loan: schemas.LoanCreate, user_id: int):
     db_loan = models.Item(**loan.dict(), owner_id=user_id)
-#     db_loan.loan_schedule = create_loan_schedule(db, db_loan)
     db.add(db_loan)
     db.commit()
     db.refresh(db_loan)
@@ -132,7 +131,6 @@ def get_loan_schedule(db: Session, user_id: int, loan_id: int):
     # Iterate through all user loans, find matching loan_id
     for loan in db_loans:
         if loan.id == loan_id:
-#             db_schedule = loan.loan_schedule
             db_schedule = create_loan_schedule(db, loan)
             break
         else:
@@ -170,6 +168,13 @@ def get_loan_summary(db: Session, user_id: int, loan_id: int, month: int):
         - Once we retrieve the loan object, we simply add it onto the other user list
 """
 def share_loan(db: Session, user_id: int, other_user_id, loan_id: int):
+    db_user = get_user(db, user_id)
+    db_other_user = get_user(db, user_id)
+
+    if db_user is None or db_other_user is None:
+        raise HTTPException(status_code=404, detail="User(s) cannot be found")
+
+
     return None
 
 """

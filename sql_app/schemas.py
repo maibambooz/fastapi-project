@@ -22,7 +22,6 @@ class LoanSummary(BaseModel):
 class Loan(LoanBase):
     id: int
     owner_id: int
-#     loan_schedule: Dict[int, LoanSummary] = {}
 
     class Config:
         orm_mode = True
